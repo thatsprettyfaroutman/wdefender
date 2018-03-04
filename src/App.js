@@ -20,6 +20,7 @@ import Stats from 'stats.js'
 import Ship from './assets/Ship'
 import Asteroid from './assets/Asteroid'
 import Shot from './assets/Shot'
+import Space from './assets/Space'
 
 class App extends Component {
   dom = null
@@ -37,6 +38,7 @@ class App extends Component {
   }
 
   mouseHelper = null
+  space = null
   ship = null
   asteroids = []
   shots = []
@@ -89,6 +91,8 @@ class App extends Component {
     this.ship.set('_mouse', this.mouse)
     this.scene.add(this.ship)
 
+    this.space = new Space()
+    this.scene.add(this.space)
 
     // Stuff
 
@@ -111,6 +115,7 @@ class App extends Component {
     const timeComp = deltaTime / this.targetMs
     this.lastUpdateTime = now
 
+    this.space.update(timeComp, deltaTime)
     this.ship.update(timeComp, deltaTime)
     this.asteroids.forEach(x => x.update(timeComp, deltaTime))
     this.shots.forEach(x => x.update(timeComp, deltaTime))
