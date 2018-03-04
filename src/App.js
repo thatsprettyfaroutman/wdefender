@@ -7,12 +7,10 @@ import {
   Scene,
   WebGLRenderer,
   Color,
-  GridHelper,
+  // GridHelper,
   BoxGeometry,
-  PlaneGeometry,
   MeshBasicMaterial,
   Mesh,
-  TextureLoader,
   Raycaster,
   Vector2,
   Vector3,
@@ -71,9 +69,9 @@ class App extends Component {
     this.scene.background = new Color( 0x130F40 )
     this.scene.add(this.camera)
 
-    const gridHelper = new GridHelper( window.innerWidth * this.scale, 20 )
-    gridHelper.rotation.x = Math.PI / 2
-		this.scene.add( gridHelper )
+    // const gridHelper = new GridHelper( window.innerWidth * this.scale, 20 )
+    // gridHelper.rotation.x = Math.PI / 2
+		// this.scene.add( gridHelper )
 
 
     // ASSETS
@@ -92,7 +90,6 @@ class App extends Component {
     this.scene.add(this.ship)
 
 
-
     // Stuff
 
     this.renderer = new WebGLRenderer({ antialias: false })
@@ -104,17 +101,8 @@ class App extends Component {
 
     this.renderLoop()
     this.updateLoopInterval = setInterval(this.updateLoop, this.targetMs)
-    // this.asteroidInterval = setInterval(this.asteroidLoop, 500)
-    this.asteroidInterval = setInterval(this.asteroidLoop, this.targetMs / 2)
-  }
-
-  asteroidLoop = () => {
-    const asteroid = new Asteroid(Math.ceil(Math.random() * 3))
-    asteroid.position.y = 2000
-    asteroid.position.z = -10
-    asteroid.position.x = Math.random() * window.innerWidth - window.innerWidth / 2
-    this.asteroids.push(asteroid)
-    this.scene.add(asteroid)
+    this.asteroidInterval = setInterval(this.asteroidLoop, 500)
+    // this.asteroidInterval = setInterval(this.asteroidLoop, this.targetMs / 2)
   }
 
   updateLoop = () => {
@@ -139,9 +127,8 @@ class App extends Component {
       }
       return true
     })
-
     this.shots = this.shots.filter(shot => {
-      if (shot.position.y > 2000 || shot.position.y < -2000 || shot.getHp() < 1) {
+      if (shot.position.y > 2000 || shot.position.y < -2000 || shot.getHp() < 0) {
         this.scene.remove(shot)
         return false
       }
@@ -152,6 +139,14 @@ class App extends Component {
       `asteroids ${this.asteroids.length}<br />shots ${this.shots.length}`
   }
 
+  asteroidLoop = () => {
+    const asteroid = new Asteroid(Math.ceil(Math.random() * 3))
+    asteroid.position.y = 2000
+    asteroid.position.z = -10
+    asteroid.position.x = Math.random() * window.innerWidth - window.innerWidth / 2
+    this.asteroids.push(asteroid)
+    this.scene.add(asteroid)
+  }
 
   handleCollisions() {
     const shipR = this.ship.getRadius()
@@ -160,18 +155,31 @@ class App extends Component {
     // Shot collisions
     this.shots.forEach(shot => {
       if (shot.getHp() < 1) return
+
+      const shotWidth = shot.getWidth()
+      const shotHeight = shot.getHeight()
+
       this.asteroids.forEach(asteroid => {
         if (asteroid.getHp() < 1) return
         const distanceDirty = asteroid.position.clone().sub(shot.position)
 
-        // Maybe use asteroid width and shot width instead of 100
-        if (Math.abs(distanceDirty.x) > 100) return
-        if (Math.abs(distanceDirty.y) > 100) return
+        if (Math.abs(distanceDirty.x) > asteroid.getWidth() + shotWidth)
+          return
+
+        if (Math.abs(distanceDirty.y) > asteroid.getHeight() + shotHeight)
+          return
 
         const distance = asteroid.position.distanceTo(shot.position)
         if (distance < shot.getRadius() + asteroid.getRadius()) {
-          asteroid.set('_hp', asteroid.getHp() - 1)
           shot.set('_hp', shot.getHp() - 1)
+          if (shot.getHp() === 0) {
+            shot.set('_velocity', new Vector3(0, 0, 0))
+          }
+
+          asteroid.set('_hp', asteroid.getHp() - 1)
+          if (asteroid.getHp() === 0) {
+            asteroid.set('_rotationVelocity', 0)
+          }
         }
       })
     })
@@ -183,7 +191,7 @@ class App extends Component {
       if(distance < shipR + asteroid.getRadius()) {
         asteroid.set('_velocity.x', 0)
         asteroid.set('_velocity.y', 0)
-        asteroid.set('_velocity.r', 0)
+        asteroid.set('_rotationVelocity', 0)
         asteroid.set('_hp', 0)
         this.ship.set('_hp', this.ship.getHp() - 1)
       }
@@ -204,15 +212,15 @@ class App extends Component {
   }
 
   handleClick = e => {
-    for (let i = 0; i < 20; i++) {
+    // for (let i = 0; i < 20; i++) {
       const shot = new Shot()
       const turretPos = this.ship.getTurretPosition()
-      shot.position.x = turretPos.x + (i-10) * 50
-      shot.position.y = turretPos.y + Math.random() * 2 - 1
+      shot.position.x = turretPos.x // + (i-10) * 50
+      shot.position.y = turretPos.y // + Math.random() * 2 - 1
       shot.shootAt(this.ship.getTurretAngle())
       this.shots.push(shot)
       this.scene.add(shot)
-    }
+    // }
   }
 
   renderLoop = () => {
@@ -221,7 +229,6 @@ class App extends Component {
     this.stats.end()
     raf(this.renderLoop)
   }
-
 
   render() {
     return (

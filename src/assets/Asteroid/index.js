@@ -1,10 +1,7 @@
 import {
   TextureLoader,
   MeshBasicMaterial,
-  PlaneGeometry,
-  Mesh,
-  RingGeometry,
-  DoubleSide,
+  Vector3,
 } from 'three'
 import Entity from '../Entity'
 
@@ -22,46 +19,32 @@ const materialDead = new MeshBasicMaterial({
 })
 
 export default class Asteroid extends Entity {
+  _hp = 1
   _width = 265.4 / 2 / 3
   _height = 259.12 / 2 / 3
   _radius = 20
   _size = 3
   _fullHp = 0
-  _velocity = {
-    x: Math.random() * 10 - 5,
-    y: Math.random() * -10 - 10,
-    r: Math.random() * 0.5 - 0.25,
-  }
+  _velocity = new Vector3(
+    Math.random() * 10 - 5,
+    Math.random() * -5 - 5,
+    0
+  )
+  _rotationVelocity = Math.random() * 0.2 - 0.1
+
 
   constructor(size=3) {
     super()
     this._size = size
     this._hp = this._fullHp = size
-    const geometry = new PlaneGeometry(
-      this._width * this._scale * this._size,
-      this._height * this._scale * this._size
-    )
-    this._mesh = new Mesh( geometry, materialFullHealth )
-
-    const ringMaterial = new MeshBasicMaterial({
-      color: 0xff00ff,
-      side: DoubleSide,
-    })
-    const ringGeometry = new RingGeometry(
-      this._radius * this._scale * this._size,
-      (this._radius * this._size - 2) * this._scale,
-      36
-    )
-    const ring = new Mesh(ringGeometry, ringMaterial)
-    ring.position.z = 1
-
-    this.add( this._mesh, ring )
+    this.createMesh(materialFullHealth)
+    // this.createRing()
   }
 
   update = timeComp => {
     this.position.x += this._velocity.x * timeComp
     this.position.y += this._velocity.y * timeComp
-    this._mesh.rotation.z += this._velocity.r * timeComp
+    this._mesh.rotation.z += this._rotationVelocity * timeComp
   }
 
   postSet = (path, value) => {
@@ -78,4 +61,5 @@ export default class Asteroid extends Entity {
       }
     }
   }
+
 }

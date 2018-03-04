@@ -1,8 +1,6 @@
 import {
   TextureLoader,
   MeshBasicMaterial,
-  PlaneGeometry,
-  Mesh,
 } from 'three'
 
 import Point from 'point-geometry'
@@ -24,16 +22,11 @@ export default class Ship extends Entity {
 
   constructor() {
     super()
-    const texture = new TextureLoader().load(TEXTURE)
     const material = new MeshBasicMaterial({
-      map: texture,
+      map: new TextureLoader().load(TEXTURE),
       transparent: true,
     })
-    const geometry = new PlaneGeometry(
-      this._width * this._scale,
-      this._height * this._scale
-    )
-    this._mesh = new Mesh( geometry, material )
+    this.createMesh(material)
 
     this._shield.position.z = 1
     this._turret.position.z = 1
