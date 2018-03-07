@@ -78,7 +78,7 @@ class App extends Component {
 
     this.score = 0
     this.running = true
-    this.difficulty = 100
+    this.difficulty = 1000
     this.stats = new Stats()
 
     this.mouse = {
