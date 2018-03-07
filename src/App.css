@@ -25,3 +25,28 @@ html, body, #root {
   color: #fff;
   user-select: none;
 }
+
+
+.GameLeaderboards {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: #130F40;
+  color: #fff;
+  font-size: 100px;
+}
+
+.GameLeaderboards > button {
+  display: block;
+  padding: 20px 60px;
+  font-size: 60px;
+  margin-top: 40px;
+  text-transform: uppercase;
+  font-weight: 700;
+}

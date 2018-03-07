@@ -21,8 +21,12 @@ export default class Space extends Entity {
 
       for (let i = 0; i < this._stars / this._colors.length; i++) {
         const vertex = new Vector3()
-        vertex.x = random(-2000, 2000)
-        vertex.y = random(-2000, 2000)
+        vertex.x =
+          random(-window.innerWidth / 2 * 2, window.innerWidth / 2 * 2)
+
+        vertex.y =
+          random(-window.innerHeight / 2 * 2, window.innerHeight / 2 * 2)
+
         vertex.z = -10
         vertex._vy = random(-4, -8)
         geometry.vertices.push(vertex)
@@ -46,9 +50,13 @@ export default class Space extends Entity {
       for ( let i = 0, n = geometry.vertices.length; i < n; i++ ) {
         const vertex = geometry.vertices[i]
         vertex.y += vertex._vy * timeComp
-        if (vertex.y < -2000) {
-          vertex.x = random(-2000, 2000)
-          vertex.y = 2000 + random(200)
+        if (vertex.y < -window.innerHeight / 2 * 2) {
+          vertex.x =
+            random(-window.innerWidth / 2 * 2, window.innerWidth / 2 * 2)
+            
+          vertex.y =
+            window.innerHeight / 2 * 2 + random(200)
+            
         }
       }
       geometry.verticesNeedUpdate = true

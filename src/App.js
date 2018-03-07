@@ -23,25 +23,30 @@ import Asteroid from './assets/Asteroid'
 import Shot from './assets/Shot'
 import Space from './assets/Space'
 
+const STATUS_GAME = 'STATUS_GAME'
+const STATUS_LEADERBOARDS = 'STATUS_LEADERBOARDS'
+
 class App extends Component {
+  state = {
+    status: STATUS_GAME
+  }
+
+  running = false
+
   dom = null
   statsDom = null
   lastUpdateTime = Date.now()
   swayIterator = 0
   targetMs = 1000 / 60
   scale = 2
-  stats = new Stats()
+  stats = null
 
   updateLoopInterval = null
   asteroidInterval = null
   difficultyInterval = null
   difficulty = 1000
 
-  mouse = {
-    raycaster: new Raycaster(),
-    vector2: new Vector2(0, 0),
-    position: new Vector3(0, 0, 0),
-  }
+  mouse = {}
 
   mouseHelper = null
   space = null
@@ -64,13 +69,23 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('mousemove', this.handleMouseMove)
-    window.removeEventListener('click', this.handleClick)
+    this.endGame()
   }
 
-  initGame() {
+  initGame = () => {
     const aspect = window.innerWidth / window.innerHeight
     const frustumSize = window.innerHeight * this.scale
+
+    this.score = 0
+    this.running = true
+    this.difficulty = 100
+    this.stats = new Stats()
+
+    this.mouse = {
+      raycaster: new Raycaster(),
+      vector2: new Vector2(0, 0),
+      position: new Vector3(0, 0, 0),
+    }
 
     this.camera = new OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 2000)
     this.camera.position.z = 10
@@ -82,7 +97,6 @@ class App extends Component {
     // const gridHelper = new GridHelper( window.innerWidth * this.scale, 20 )
     // gridHelper.rotation.x = Math.PI / 2
 		// this.scene.add( gridHelper )
-
 
     // ASSETS
     this.mouseHelper = new Mesh(
@@ -114,14 +128,36 @@ class App extends Component {
     this.renderLoop()
     this.updateLoopInterval = setInterval(this.updateLoop, this.targetMs)
     this.difficultyInterval = setInterval(this.difficultyLoop, 10000)
+  }
 
-    // this.asteroidInterval = setInterval(this.asteroidLoop, this.difficulty)
-    // this.asteroidInterval = setInterval(this.asteroidLoop, this.targetMs / 2)
+  endGame = () => {
+    this.running = false
+    window.removeEventListener('mousemove', this.handleMouseMove)
+    window.removeEventListener('click', this.handleClick)
+    clearInterval(this.difficultyInterval)
+    clearInterval(this.updateLoopInterval)
+    clearInterval(this.asteroidInterval)
+    while (this.scene.children.length) {
+      this.scene.remove(this.scene.children[0])
+    }
+    this.scene = null
+    this.camera = null
+    this.renderer = null
+    this.stats = null
+    this.mouse = null
+    this.mouseHelper = null
+    this.space = null
+    this.ship = null
+    this.asteroids = []
+    this.shots = []
+
+    this.dom.innerHTML = ''
+
+    this.setState({ status: STATUS_LEADERBOARDS })
   }
 
   difficultyLoop = () => {
     clearInterval(this.asteroidInterval)
-    console.log(this.difficulty)
     this.asteroidInterval = setInterval(this.asteroidLoop, this.difficulty)
     this.difficulty *= 0.9
   }
@@ -131,6 +167,12 @@ class App extends Component {
     const deltaTime = now - this.lastUpdateTime
     const timeComp = deltaTime / this.targetMs
     this.lastUpdateTime = now
+
+
+    if (this.ship.getHp() < 1) {
+      this.endGame()
+      return
+    }
 
     this.space.update(timeComp, deltaTime)
     this.ship.update(timeComp, deltaTime)
@@ -184,9 +226,6 @@ score ${this.score}
     // Shot collisions
     this.shots.forEach(shot => {
       if (shot.getHp() < 1) return
-
-      const shotWidth = shot.getWidth()
-      const shotHeight = shot.getHeight()
 
       this.asteroids.forEach(asteroid => {
         if (asteroid.getHp() < 1) return
@@ -270,6 +309,7 @@ score ${this.score}
   }
 
   renderLoop = () => {
+    if (!this.running) return
     this.stats.begin()
     this.renderer.render(this.scene, this.camera)
     this.stats.end()
@@ -277,6 +317,21 @@ score ${this.score}
   }
 
   render() {
+
+    if (this.state.status === STATUS_LEADERBOARDS) return (
+      <div className="GameLeaderboards">
+        you died, score: { this.score }
+        <button
+          onClick={() => {
+            this.setState({ status: STATUS_GAME }, () => {
+              this.initGame()
+            })
+          }}
+          children="Restart"
+        />
+      </div>
+    )
+
     return (
       <Fragment>
         <div className="Game" ref={dom => this.dom = dom} />
