@@ -3,6 +3,7 @@ import {
   MeshBasicMaterial,
   Vector3,
 } from 'three'
+import random from 'lodash.random'
 import Entity from '../Entity'
 
 import TEXTURE from './texture-full-health.svg'
@@ -26,11 +27,11 @@ export default class Asteroid extends Entity {
   _size = 3
   _fullHp = 0
   _velocity = new Vector3(
-    Math.random() * 10 - 5,
-    Math.random() * -5 - 5,
+    random(-2, 2, true),
+    random(-5, -10, true),
     0
   )
-  _rotationVelocity = Math.random() * 0.2 - 0.1
+  _rotationVelocity = random(-0.1, 0.1, true)
 
 
   constructor(size=3) {
@@ -39,6 +40,7 @@ export default class Asteroid extends Entity {
     this._hp = this._fullHp = size
     this.createMesh(materialFullHealth)
     // this.createRing()
+    this.position.z = random(1) ? -2 : 2
   }
 
   update = timeComp => {
@@ -53,7 +55,6 @@ export default class Asteroid extends Entity {
     if (path.includes('_hp')) {
       if (value === 0) {
         this._mesh.material = materialDead
-        this.position.z = 1
         setTimeout(() => {
           this._dying = true
           this._hp = -1

@@ -21,6 +21,7 @@ export default class Entity extends Group {
   _angle = 0
   _dying = false
   _mesh = null
+  _ring = null
   _velocity = new Vector3(0, 0, 0)
 
   set = (path, value) => {
@@ -57,6 +58,7 @@ export default class Entity extends Group {
     )
     const ring = new Mesh(ringGeometry, ringMaterial)
     ring.position.z = 1
+    this._ring = ring
     this.add(ring)
   }
 

@@ -13,6 +13,7 @@ import TEXTURE from './texture.svg'
 
 export default class Ship extends Entity {
   _hp = 3
+  _radius = 80
   _width = 141.058
   _height = 129.676
   _swayIterator = 0
@@ -27,6 +28,7 @@ export default class Ship extends Entity {
       transparent: true,
     })
     this.createMesh(material)
+    // this.createRing()
 
     this._shield.position.z = 1
     this._turret.position.z = 1
@@ -63,22 +65,16 @@ export default class Ship extends Entity {
     this._turret.update(timeComp, deltaTime)
   }
 
-  getRadius = () => this._shield.getRadius()
-  getHp = () => this._shield.getHp() || this._hp
+  getRadius = () => {
+    if (this._shield.getHp() > 0) return this._shield.getRadius()
+    return this._radius
+  }
+  getHp = () => this._hp
+  getShieldHp = () => this._shield.getHp()
   getTurretAngle = () => this._turret.getAngle()
   getTurretPosition = () => this.position.clone().add(this._turret.position)
 
-  postSet = (path, value) => {
-    if (path.includes('_hp')) {
-      // console.log(value, this._shield.getHp())
-      // if (this._shield.getHp()) {
-      //   this._shield.set('_hp', this._shield.getHp() - 1)
-      //   return
-      // }
-      // if (value === 0) alert('ded')
-      this._shield.set('_visibleTime', 1000)
+  setShieldHp = hp => this._shield.set('_hp', hp)
 
-    }
-  }
 
 }

@@ -16,6 +16,7 @@ import {
   Vector3,
 } from 'three'
 import Stats from 'stats.js'
+import random from 'lodash.random'
 
 import Ship from './assets/Ship'
 import Asteroid from './assets/Asteroid'
@@ -31,6 +32,11 @@ class App extends Component {
   scale = 2
   stats = new Stats()
 
+  updateLoopInterval = null
+  asteroidInterval = null
+  difficultyInterval = null
+  difficulty = 1000
+
   mouse = {
     raycaster: new Raycaster(),
     vector2: new Vector2(0, 0),
@@ -42,6 +48,8 @@ class App extends Component {
   ship = null
   asteroids = []
   shots = []
+
+  score = 0
 
   componentDidMount() {
     // Disable right click menu
@@ -105,8 +113,17 @@ class App extends Component {
 
     this.renderLoop()
     this.updateLoopInterval = setInterval(this.updateLoop, this.targetMs)
-    this.asteroidInterval = setInterval(this.asteroidLoop, 500)
+    this.difficultyInterval = setInterval(this.difficultyLoop, 10000)
+
+    // this.asteroidInterval = setInterval(this.asteroidLoop, this.difficulty)
     // this.asteroidInterval = setInterval(this.asteroidLoop, this.targetMs / 2)
+  }
+
+  difficultyLoop = () => {
+    clearInterval(this.asteroidInterval)
+    console.log(this.difficulty)
+    this.asteroidInterval = setInterval(this.asteroidLoop, this.difficulty)
+    this.difficulty *= 0.9
   }
 
   updateLoop = () => {
@@ -140,22 +157,29 @@ class App extends Component {
       return true
     })
 
-    this.statsDom.innerHTML =
-      `asteroids ${this.asteroids.length}<br />shots ${this.shots.length}`
+    this.statsDom.innerHTML = `
+
+asteroids ${this.asteroids.length}<br />
+shots ${this.shots.length}<br />
+shieldHp ${this.ship.getShieldHp()}<br />
+shipHp ${this.ship.getHp()}<br />
+<br />
+score ${this.score}
+
+    `
   }
 
   asteroidLoop = () => {
-    const asteroid = new Asteroid(Math.ceil(Math.random() * 3))
+    const asteroid = new Asteroid(random(1, 3))
     asteroid.position.y = 2000
     asteroid.position.z = -10
-    asteroid.position.x = Math.random() * window.innerWidth - window.innerWidth / 2
+    asteroid.position.x = random(-window.innerWidth / 2, window.innerWidth / 2)
     this.asteroids.push(asteroid)
     this.scene.add(asteroid)
   }
 
   handleCollisions() {
     const shipR = this.ship.getRadius()
-    const shipCollisionBorder = -window.innerHeight + this.ship.getHeight() * 3
 
     // Shot collisions
     this.shots.forEach(shot => {
@@ -166,42 +190,59 @@ class App extends Component {
 
       this.asteroids.forEach(asteroid => {
         if (asteroid.getHp() < 1) return
-        const distanceDirty = asteroid.position.clone().sub(shot.position)
-
-        if (Math.abs(distanceDirty.x) > asteroid.getWidth() + shotWidth)
-          return
-
-        if (Math.abs(distanceDirty.y) > asteroid.getHeight() + shotHeight)
-          return
-
+        if (!this.checkDirtyDistance(shot, asteroid)) return
         const distance = asteroid.position.distanceTo(shot.position)
-        if (distance < shot.getRadius() + asteroid.getRadius()) {
-          shot.set('_hp', shot.getHp() - 1)
-          if (shot.getHp() === 0) {
-            shot.set('_velocity', new Vector3(0, 0, 0))
-          }
-
-          asteroid.set('_hp', asteroid.getHp() - 1)
-          if (asteroid.getHp() === 0) {
-            asteroid.set('_rotationVelocity', 0)
-          }
-        }
+        if ( distance < shot.getRadius() + asteroid.getRadius() )
+          this.handleShotAsteroidCollision(shot, asteroid, distance)
       })
     })
 
     this.asteroids.forEach(asteroid => {
       if (asteroid.getHp() < 1) return
-      if (asteroid.position.y > shipCollisionBorder) return
+      if (!this.checkDirtyDistance(this.ship, asteroid)) return
       const distance = asteroid.position.distanceTo(this.ship.position)
-      if(distance < shipR + asteroid.getRadius()) {
-        asteroid.set('_velocity.x', 0)
-        asteroid.set('_velocity.y', 0)
-        asteroid.set('_rotationVelocity', 0)
-        asteroid.set('_hp', 0)
-        this.ship.set('_hp', this.ship.getHp() - 1)
-      }
+      if ( distance < shipR + asteroid.getRadius() )
+        this.handleShipAsteroidCollision(this.ship, asteroid)
     })
 
+  }
+
+  checkDirtyDistance = (entityA, entityB) => {
+    const distanceDirty = entityA.position.clone().sub(entityB.position)
+
+    if (Math.abs(distanceDirty.x) > entityA.getWidth() + entityB.getWidth())
+      return false
+
+    if (Math.abs(distanceDirty.y) > entityA.getHeight() + entityB.getHeight())
+      return false
+
+    return true
+  }
+
+  handleShotAsteroidCollision = (shot, asteroid, distance) => {
+    this.score += 100 + Math.round(distance)
+    shot.set('_hp', shot.getHp() - 1)
+    if (shot.getHp() === 0) {
+      shot.set('_velocity', new Vector3(0, 0, 0))
+    }
+
+    asteroid.set('_hp', asteroid.getHp() - 1)
+    if (asteroid.getHp() === 0) {
+      asteroid.set('_rotationVelocity', 0)
+    }
+  }
+
+  handleShipAsteroidCollision = (ship, asteroid) =>{
+    asteroid.set('_velocity.x', 0)
+    asteroid.set('_velocity.y', 0)
+    asteroid.set('_rotationVelocity', 0)
+    asteroid.set('_hp', 0)
+
+    if (ship.getShieldHp() > 0) {
+      ship.setShieldHp(ship.getShieldHp() - 1)
+    } else {
+      ship.set('_hp', this.ship.getHp() - 1)
+    }
   }
 
   handleMouseMove = e => {
@@ -221,7 +262,7 @@ class App extends Component {
       const shot = new Shot()
       const turretPos = this.ship.getTurretPosition()
       shot.position.x = turretPos.x // + (i-10) * 50
-      shot.position.y = turretPos.y // + Math.random() * 2 - 1
+      shot.position.y = turretPos.y
       shot.shootAt(this.ship.getTurretAngle())
       this.shots.push(shot)
       this.scene.add(shot)
