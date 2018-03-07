@@ -63,9 +63,6 @@ class App extends Component {
     // Init
     this.initGame()
 
-    // Listen
-    window.addEventListener('mousemove', this.handleMouseMove)
-    window.addEventListener('click', this.handleClick)
   }
 
   componentWillUnmount() {
@@ -128,6 +125,11 @@ class App extends Component {
     this.renderLoop()
     this.updateLoopInterval = setInterval(this.updateLoop, this.targetMs)
     this.difficultyInterval = setInterval(this.difficultyLoop, 10000)
+
+
+    // Listen
+    window.addEventListener('mousemove', this.handleMouseMove)
+    window.addEventListener('click', this.handleClick)
   }
 
   endGame = () => {

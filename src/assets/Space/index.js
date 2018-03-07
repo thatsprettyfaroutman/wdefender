@@ -53,10 +53,10 @@ export default class Space extends Entity {
         if (vertex.y < -window.innerHeight / 2 * 2) {
           vertex.x =
             random(-window.innerWidth / 2 * 2, window.innerWidth / 2 * 2)
-            
+
           vertex.y =
-            window.innerHeight / 2 * 2 + random(200)
-            
+            window.innerHeight / 2 * 2 + random(window.innerHeight)
+
         }
       }
       geometry.verticesNeedUpdate = true
