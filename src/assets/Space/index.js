@@ -25,7 +25,7 @@ export default class Space extends Entity {
           random(-window.innerWidth / 2 * 2, window.innerWidth / 2 * 2)
 
         vertex.y =
-          random(-window.innerHeight / 2 * 2, window.innerHeight / 2 * 2)
+          window.innerHeight / 2 * 2 + random(window.innerHeight)
 
         vertex.z = -10
         vertex._vy = random(-4, -8)
