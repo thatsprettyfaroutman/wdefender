@@ -17,7 +17,7 @@ export default class Shot extends Entity {
   _width = 32.94 / 2
   _height = 41.32 / 2
   _radius = 10
-  _speed = 20 + random(-0.1, 0.1, true)
+  _speed = 30 + random(-0.1, 0.1, true)
   _velocity = new Vector3(0, 0, 0)
 
   constructor() {
