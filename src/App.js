@@ -125,17 +125,10 @@ class App extends Component {
     this.renderLoop()
     this.updateLoopInterval = setInterval(this.updateLoop, this.targetMs)
     this.difficultyInterval = setInterval(this.difficultyLoop, 10000)
-
-
-    // Listen
-    window.addEventListener('mousemove', this.handleMouseMove)
-    window.addEventListener('click', this.handleClick)
   }
 
   endGame = () => {
     this.running = false
-    window.removeEventListener('mousemove', this.handleMouseMove)
-    window.removeEventListener('click', this.handleClick)
     clearInterval(this.difficultyInterval)
     clearInterval(this.updateLoopInterval)
     clearInterval(this.asteroidInterval)
@@ -336,7 +329,12 @@ score ${this.score}
 
     return (
       <Fragment>
-        <div className="Game" ref={dom => this.dom = dom} />
+        <div
+          className="Game"
+          ref={dom => this.dom = dom}
+          onMouseMove={this.handleMouseMove}
+          onClick={this.handleClick}
+        />
         <div className="GameStats" ref={dom => this.statsDom = dom} />
       </Fragment>
     )
