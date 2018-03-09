@@ -113,6 +113,7 @@ class App extends Component {
     this.space = new Space()
     this.scene.add(this.space)
 
+
     // Stuff
 
     this.renderer = new WebGLRenderer({ antialias: false })
@@ -124,7 +125,8 @@ class App extends Component {
 
     this.renderLoop()
     this.updateLoopInterval = setInterval(this.updateLoop, this.targetMs)
-    this.difficultyInterval = setInterval(this.difficultyLoop, 10000)
+    // this.difficultyInterval = setInterval(this.difficultyLoop, 10000)
+    this.asteroidInterval = setInterval(this.asteroidLoop, 500)
   }
 
   endGame = () => {
@@ -164,10 +166,10 @@ class App extends Component {
     this.lastUpdateTime = now
 
 
-    if (this.ship.getHp() < 1) {
-      this.endGame()
-      return
-    }
+    // if (this.ship.getHp() < 1) {
+      // this.endGame()
+      // return
+    // }
 
     this.space.update(timeComp, deltaTime)
     this.ship.update(timeComp, deltaTime)
@@ -262,14 +264,14 @@ score ${this.score}
 
     asteroid.set('_hp', asteroid.getHp() - 1)
     if (asteroid.getHp() === 0) {
-      asteroid.set('_rotationVelocity', 0)
+      // asteroid.set('_rotationVelocity', 0)
     }
   }
 
   handleShipAsteroidCollision = (ship, asteroid) =>{
     asteroid.set('_velocity.x', 0)
     asteroid.set('_velocity.y', 0)
-    asteroid.set('_rotationVelocity', 0)
+    // asteroid.set('_rotationVelocity', 0)
     asteroid.set('_hp', 0)
 
     if (ship.getShieldHp() > 0) {
