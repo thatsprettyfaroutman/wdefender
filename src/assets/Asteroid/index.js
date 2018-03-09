@@ -10,6 +10,9 @@ import cubicBezier from 'cubic-bezier'
 import Entity from '../Entity'
 
 import TEXTURE from './texture-full-health.svg'
+import TEXTURE_2HP from './texture-2hp.svg'
+import TEXTURE_1HP from './texture-1hp.svg'
+
 import TEXTURE_EXPLOSION from './texture-explosion.svg'
 
 import TEXTURE_PART_1 from './texture-part-1.svg'
@@ -19,6 +22,16 @@ import TEXTURE_PART_4 from './texture-part-4.svg'
 
 const materialFullHealth = new MeshBasicMaterial({
   map: new TextureLoader().load(TEXTURE),
+  transparent: true,
+})
+
+const material2hp = new MeshBasicMaterial({
+  map: new TextureLoader().load(TEXTURE_2HP),
+  transparent: true,
+})
+
+const material1hp = new MeshBasicMaterial({
+  map: new TextureLoader().load(TEXTURE_1HP),
   transparent: true,
 })
 
@@ -169,6 +182,15 @@ export default class Asteroid extends Entity {
     if (this._dying) return
 
     if (path.includes('_hp')) {
+
+      if (this._hp !== this._fullHp) {
+        if (this._hp === 1) {
+          this._mesh.material = material1hp
+        } else if (this._hp === 2) {
+          this._mesh.material = material2hp
+        }
+      }
+
       if (value === 0) {
         this.remove(this._mesh)
         this._mesh = null
