@@ -183,23 +183,26 @@ export default class Asteroid extends Entity {
 
     if (path.includes('_hp')) {
 
+      const hpPercentage = this._hp / this._fullHp
+
       if (this._hp !== this._fullHp) {
-        if (this._hp === 1) {
+        if (hpPercentage <= 0.5)
           this._mesh.material = material1hp
-        } else if (this._hp === 2) {
+
+        else if (hpPercentage < 1)
           this._mesh.material = material2hp
-        }
+
       }
 
       if (value === 0) {
-        this.remove(this._mesh)
-        this._mesh = null
-
         this.createExplosion()
         this.createParts()
 
         this._dying = true
         this._dyingTime = DYING_TIME
+
+        this.remove(this._mesh)
+        this._mesh = null
       }
     }
   }

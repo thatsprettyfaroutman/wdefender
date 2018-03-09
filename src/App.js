@@ -41,6 +41,8 @@ class App extends Component {
   scale = 2
   stats = null
 
+  asteroidI = 0
+
   updateLoopInterval = null
   asteroidInterval = null
   difficultyInterval = null
@@ -77,6 +79,7 @@ class App extends Component {
     this.running = true
     this.difficulty = 1000
     this.stats = new Stats()
+    this.asteroidI = 0
 
     this.mouse = {
       raycaster: new Raycaster(),
@@ -125,8 +128,8 @@ class App extends Component {
 
     this.renderLoop()
     this.updateLoopInterval = setInterval(this.updateLoop, this.targetMs)
-    // this.difficultyInterval = setInterval(this.difficultyLoop, 10000)
-    this.asteroidInterval = setInterval(this.asteroidLoop, 500)
+    this.difficultyInterval = setInterval(this.difficultyLoop, 10000)
+    // this.asteroidInterval = setInterval(this.asteroidLoop, 500)
   }
 
   endGame = () => {
@@ -166,10 +169,10 @@ class App extends Component {
     this.lastUpdateTime = now
 
 
-    // if (this.ship.getHp() < 1) {
-      // this.endGame()
-      // return
-    // }
+    if (this.ship.getHp() < 1) {
+      this.endGame()
+      return
+    }
 
     this.space.update(timeComp, deltaTime)
     this.ship.update(timeComp, deltaTime)
@@ -209,12 +212,17 @@ score ${this.score}
   }
 
   asteroidLoop = () => {
-    const asteroid = new Asteroid(random(1, 3))
+    let size = random(1, 3)
+    if (this.asteroidI >= 500 && this.asteroidI % 500 === 0) size = 8
+
+    const asteroid = new Asteroid(size)
     asteroid.position.y = 2000
     asteroid.position.z = -10
     asteroid.position.x = random(-window.innerWidth / 2, window.innerWidth / 2)
     this.asteroids.push(asteroid)
     this.scene.add(asteroid)
+
+    this.asteroidI++
   }
 
   handleCollisions() {
@@ -264,14 +272,12 @@ score ${this.score}
 
     asteroid.set('_hp', asteroid.getHp() - 1)
     if (asteroid.getHp() === 0) {
-      // asteroid.set('_rotationVelocity', 0)
     }
   }
 
   handleShipAsteroidCollision = (ship, asteroid) =>{
     asteroid.set('_velocity.x', 0)
     asteroid.set('_velocity.y', 0)
-    // asteroid.set('_rotationVelocity', 0)
     asteroid.set('_hp', 0)
 
     if (ship.getShieldHp() > 0) {
