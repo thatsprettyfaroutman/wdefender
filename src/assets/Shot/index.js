@@ -14,8 +14,8 @@ const material = new MeshBasicMaterial({
 
 export default class Shot extends Entity {
   _hp = 1
-  _width = 32.94 / 2
-  _height = 41.32 / 2
+  _width = 32.94
+  _height = 41.32
   _radius = 10
   _speed = 30 + random(-0.1, 0.1, true)
   _velocity = new Vector3(0, 0, 0)

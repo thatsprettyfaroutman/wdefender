@@ -15,7 +15,6 @@ export default class Entity extends Group {
   _hp = 1
   _width = 0
   _height = 0
-  _scale = 2
   _size = 1
   _radius = 1
   _angle = 0
@@ -29,9 +28,9 @@ export default class Entity extends Group {
     this.postSet(path, value)
   }
 
-  getWidth = () => this._width * this._size * this._scale
-  getHeight = () => this._width * this._size * this._scale
-  getRadius = () => this._radius * this._size * this._scale
+  getWidth = () => this._width * this._size
+  getHeight = () => this._width * this._size
+  getRadius = () => this._radius * this._size
   getAngle = () => this._angle
   getVelocity = () => this._velocity
   getHp = () => this._hp
@@ -39,8 +38,8 @@ export default class Entity extends Group {
 
   createMesh = material => {
     const geometry = new PlaneGeometry(
-      this._width * this._scale * this._size,
-      this._height * this._scale * this._size
+      this._width * this._size,
+      this._height * this._size
     )
     this._mesh = new Mesh( geometry, material )
     this.add(this._mesh)
@@ -52,9 +51,9 @@ export default class Entity extends Group {
       side: DoubleSide,
     })
     const ringGeometry = new RingGeometry(
-      this._radius * this._scale * this._size,
-      (this._radius * this._size - 2) * this._scale,
-      36
+      this._radius * this._size,
+      (this._radius * this._size - 2),
+      36 * 2
     )
     const ring = new Mesh(ringGeometry, ringMaterial)
     ring.position.z = 1
@@ -62,7 +61,7 @@ export default class Entity extends Group {
     this.add(ring)
   }
 
-  calculateVelocityFromAngle(angle) {
+  calculateVelocityFromAngle = angle => {
     return new Vector3(
        Math.cos(angle),
        Math.sin(angle),

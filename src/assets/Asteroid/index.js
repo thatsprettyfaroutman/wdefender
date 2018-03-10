@@ -50,7 +50,7 @@ const partMaterials = [
   transparent: true,
 }))
 
-const resize = size => size / 2 / 3
+const resize = size => size / 3
 
 const DYING_TIME = 400
 
@@ -60,7 +60,7 @@ export default class Asteroid extends Entity {
   _hp = 1
   _width = resize(265.4)
   _height = resize(259.12)
-  _radius = 20
+  _radius = 40
   _size = 3
   _fullHp = 0
   _velocity = new Vector3(
@@ -109,13 +109,12 @@ export default class Asteroid extends Entity {
     this._hp = this._fullHp = size
 
     this.createMesh(materialFullHealth)
-    // this.createParts()
     // this.createRing()
 
     this.position.z = random(1) ? -10 : 10
   }
 
-  scaleWithSize = size => size * this._scale * this._size
+  scaleWithSize = size => size * this._size
 
   createParts() {
     partMaterials.forEach((material, i) => {

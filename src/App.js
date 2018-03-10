@@ -109,7 +109,7 @@ class App extends Component {
     this.scene.add(this.mouseHelper)
 
     this.ship = new Ship()
-    this.ship.position.y = -window.innerHeight + this.ship.getHeight()
+    this.ship.position.y = -window.innerHeight / 2 * this.scale + this.ship.getHeight()
     this.ship.set('_mouse', this.mouse)
     this.scene.add(this.ship)
 
@@ -168,11 +168,10 @@ class App extends Component {
     const timeComp = deltaTime / this.targetMs
     this.lastUpdateTime = now
 
-
-    if (this.ship.getHp() < 1) {
-      this.endGame()
-      return
-    }
+    // if (this.ship.getHp() < 1) {
+    //   this.endGame()
+    //   return
+    // }
 
     this.space.update(timeComp, deltaTime)
     this.ship.update(timeComp, deltaTime)

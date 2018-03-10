@@ -1,15 +1,15 @@
 import {
   Geometry,
   Vector3,
-  PointsMaterial,
-  Points,
+  LineBasicMaterial,
   Line,
 } from 'three'
 import random from 'lodash.random'
+import { getViewport } from '../../utils'
 import Entity from '../Entity'
 
 export default class Space extends Entity {
-  _stars = 100 // window.innerWidth * this._scale
+  _stars = 100
   _lines = []
   _colors = [ 0x1db4db, 0xffffff, 0xe0cc36, 0xea6a2b ]
   _materials = []
@@ -17,38 +17,9 @@ export default class Space extends Entity {
   constructor() {
     super()
     this._materials = this._colors.map(color => {
-      return new PointsMaterial({
+      return new LineBasicMaterial({
         color,
-        opacity: 0.2,
-        size: 0.1,
       })
-      // const geometry = new Geometry()
-      //
-      // for (let i = 0; i < this._stars / this._colors.length; i++) {
-      //   const vertex = new Vector3()
-      //   vertex.x =
-      //     random(-window.innerWidth / 2, window.innerWidth / 2) * this._scale
-      //
-      //   vertex.y =
-      //     window.innerHeight / 2 * this._scale + random(window.innerHeight)
-      //     // window.innerHeight / 2 + starI
-      //
-      //   vertex.z = -10
-      //   vertex._vy = random(-10, -20)
-      //   geometry.vertices.push(vertex)
-      //   starI++
-      // }
-      //
-      // const material = new PointsMaterial({
-      //   color,
-      //   opacity: 0.2,
-      //   size: 0.1,
-      // })
-      //
-      // const particles = new Line( geometry, material )
-      // this.add( particles )
-      //
-      // return geometry
     })
 
     for (let i = 0; i < this._stars; i++) {
@@ -63,7 +34,7 @@ export default class Space extends Entity {
     const vy = random(-10, -20)
     const geometry = new Geometry()
     geometry.vertices.push(new Vector3(0, 0, 0))
-    geometry.vertices.push(new Vector3(0, -vy * this._scale * 2, 0))
+    geometry.vertices.push(new Vector3(0, -vy * 4, 0))
     const line =
       new Line(geometry, this._materials[random(this._materials.length)])
     line._vy = vy
@@ -72,36 +43,25 @@ export default class Space extends Entity {
   }
 
   resetLinePosition = line => {
+    const viewport = getViewport()
+
     line.position.x =
-      random(-window.innerWidth / 2, window.innerWidth / 2) * this._scale
+      random(-viewport.width / 2, viewport.width / 2)
 
     line.position.y =
-      window.innerHeight * this._scale + random(window.innerHeight)
+      viewport.height + random(viewport.height)
 
     line.position.z = -10
   }
 
   update = timeComp => {
+    const viewport = getViewport()
     this._lines.forEach(line => {
       line.position.y += line._vy
 
-      if (line.position.y < -window.innerHeight * this._scale) {
+      if (line.position.y < -viewport.height) {
         this.resetLinePosition(line)
       }
-
-      // for ( let i = 0, n = geometry.vertices.length; i < n; i++ ) {
-      //   const vertex = geometry.vertices[i]
-      //   vertex.y += vertex._vy * timeComp
-      //   if (vertex.y < -window.innerHeight / 2 * this._scale) {
-      //     vertex.x =
-      //       random(-window.innerWidth / 2, window.innerWidth / 2) * this._scale
-      //
-      //     vertex.y =
-      //       window.innerHeight / 2 * this._scale + random(window.innerHeight)
-      //
-      //   }
-      // }
-      // geometry.verticesNeedUpdate = true
     })
   }
 }

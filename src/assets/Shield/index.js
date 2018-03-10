@@ -11,9 +11,9 @@ const TIME_VISIBLE = 1000
 
 export default class Shield extends Entity {
   _hp = 3
-  _width = 576 / 2
-  _height = 576 / 2
-  _radius = 120
+  _width = 576
+  _height = 576
+  _radius = 240
   _visibleTime = TIME_VISIBLE
   _deathTime = 0
   _dying = false

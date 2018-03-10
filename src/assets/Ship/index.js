@@ -13,9 +13,9 @@ import TEXTURE from './texture.svg'
 
 export default class Ship extends Entity {
   _hp = 3
-  _radius = 80
-  _width = 141.058
-  _height = 129.676
+  _radius = 120
+  _width = 282.12
+  _height = 259.36
   _swayIterator = 0
   _mouse = null
   _shield = new Shield()
@@ -32,7 +32,7 @@ export default class Ship extends Entity {
 
     this._shield.position.z = 1
     this._turret.position.z = 1
-    this._turret.position.y = -14.5 * this._scale
+    this._turret.position.y = -14.5
 
     this.add( this._mesh, this._shield, this._turret )
   }
@@ -44,10 +44,10 @@ export default class Ship extends Entity {
       timeComp / 100
 
     this.position.x +=
-      Math.sin(this._swayIterator) / 8 * this._scale
+      Math.sin(this._swayIterator) / 8
 
     this.position.y +=
-      Math.cos(this._swayIterator) / 3 * this._scale
+      Math.cos(this._swayIterator) / 3
 
     this.rotation.z +=
       Math.sin(this._swayIterator) / 3600
