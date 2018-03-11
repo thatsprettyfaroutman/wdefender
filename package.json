@@ -13,11 +13,12 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.1",
+    "serve": "^6.5.2",
     "stats.js": "^0.17.0",
     "three": "^0.90.0"
   },
   "scripts": {
-    "postinstall": "npm run build",
+    "postinstall": "yarn build",
     "dev": "react-scripts start",
     "start": "serve -s ./build",
     "build": "react-scripts build",
