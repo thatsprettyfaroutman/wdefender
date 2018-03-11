@@ -32,7 +32,7 @@ export default class Ship extends Entity {
 
     this._shield.position.z = 1
     this._turret.position.z = 1
-    this._turret.position.y = -14.5
+    this._turret.position.y = -29
 
     this.add( this._mesh, this._shield, this._turret )
   }

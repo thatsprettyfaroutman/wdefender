@@ -168,10 +168,10 @@ class App extends Component {
     const timeComp = deltaTime / this.targetMs
     this.lastUpdateTime = now
 
-    // if (this.ship.getHp() < 1) {
-    //   this.endGame()
-    //   return
-    // }
+    if (this.ship.getHp() < 1) {
+      this.endGame()
+      return
+    }
 
     this.space.update(timeComp, deltaTime)
     this.ship.update(timeComp, deltaTime)
@@ -224,46 +224,30 @@ score ${this.score}
     this.asteroidI++
   }
 
+  filterDead = x => x.getHp() > 0
+
   handleCollisions() {
-    const shipR = this.ship.getRadius()
-
-    // Shot collisions
-    this.shots.forEach(shot => {
-      if (shot.getHp() < 1) return
-
-      this.asteroids.forEach(asteroid => {
-        if (asteroid.getHp() < 1) return
-        if (!this.checkDirtyDistance(shot, asteroid)) return
-        const distance = asteroid.position.distanceTo(shot.position)
-        if ( distance < shot.getRadius() + asteroid.getRadius() )
-          this.handleShotAsteroidCollision(shot, asteroid, distance)
-      })
+    this.shots
+      .filter(this.filterDead)
+      .forEach(shot => {
+        this.asteroids
+          .filter(this.filterDead)
+          .filter(shot.collidesWith)
+          .forEach(asteroid => {
+            this.handleShotAsteroidCollision(shot, asteroid)
+          })
     })
 
-    this.asteroids.forEach(asteroid => {
-      if (asteroid.getHp() < 1) return
-      if (!this.checkDirtyDistance(this.ship, asteroid)) return
-      const distance = asteroid.position.distanceTo(this.ship.position)
-      if ( distance < shipR + asteroid.getRadius() )
+    this.asteroids
+      .filter(this.filterDead)
+      .filter(this.ship.collidesWith)
+      .forEach(asteroid => {
         this.handleShipAsteroidCollision(this.ship, asteroid)
-    })
-
+      })
   }
 
-  checkDirtyDistance = (entityA, entityB) => {
-    const distanceDirty = entityA.position.clone().sub(entityB.position)
-
-    if (Math.abs(distanceDirty.x) > entityA.getWidth() + entityB.getWidth())
-      return false
-
-    if (Math.abs(distanceDirty.y) > entityA.getHeight() + entityB.getHeight())
-      return false
-
-    return true
-  }
-
-  handleShotAsteroidCollision = (shot, asteroid, distance) => {
-    this.score += 100 + Math.round(distance)
+  handleShotAsteroidCollision = (shot, asteroid) => {
+    this.score += 100 + Math.round(shot.getDistanceTo(asteroid))
     shot.set('_hp', shot.getHp() - 1)
     if (shot.getHp() === 0) {
       shot.set('_velocity', new Vector3(0, 0, 0))
@@ -279,11 +263,13 @@ score ${this.score}
     asteroid.set('_velocity.y', 0)
     asteroid.set('_hp', 0)
 
-    if (ship.getShieldHp() > 0) {
-      ship.setShieldHp(ship.getShieldHp() - 1)
-    } else {
-      ship.set('_hp', this.ship.getHp() - 1)
-    }
+    ship.setShieldHp(ship.getShieldHp())
+
+    // if (ship.getShieldHp() > 0) {
+      // ship.setShieldHp(ship.getShieldHp() - 1)
+    // } else {
+    //   ship.set('_hp', this.ship.getHp() - 1)
+    // }
   }
 
   handleMouseMove = e => {

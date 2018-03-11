@@ -69,6 +69,35 @@ export default class Entity extends Group {
     )
   }
 
+  getDistanceTo = entity => {
+    const v = {
+      x: this.position.x - entity.position.x,
+      y: this.position.y - entity.position.y,
+    }
+    return Math.hypot(v.x, v.y)
+  }
+
+  mayCollideWith = entity => {
+    const diff = {
+      x: Math.abs(this.position.x - entity.position.x),
+      y: Math.abs(this.position.y - entity.position.y),
+    }
+
+    if (diff.x > this.getWidth() + entity.getWidth())
+      return false
+
+    if (diff.y > this.getHeight() + entity.getHeight())
+      return false
+
+    return true
+  }
+
+  collidesWith = entity => {
+    if (!this.mayCollideWith(entity)) return false
+    const distance = this.getDistanceTo(entity)
+    return distance <= this.getRadius() + entity.getRadius()
+  }
+
   update = noop
   postSet = noop
 }
